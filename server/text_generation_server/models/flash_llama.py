@@ -305,10 +305,11 @@ class FlashLlamaSharded(FlashLlama):
 
 
 def SingleLlama(model_id: str, revision: Optional[str] = None, quantize=False):
-    tokenizer = LlamaTokenizer.from_pretrained(
+    llama = CausalLM(model_id, revision, quantize=quantize)
+    llama.tokenizer = LlamaTokenizer.from_pretrained(
         model_id,
         revision=revision,
         padding_side="left",
         truncation_side="left",
     )
-    return CausalLM(model_id, revision, tokenizer=tokenizer, quantize=quantize)
+    return llama
