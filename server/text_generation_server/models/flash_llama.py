@@ -5,7 +5,7 @@ from accelerate import init_empty_weights
 from opentelemetry import trace
 from pathlib import Path
 from safetensors import safe_open
-from transformers import AutoConfig
+from transformers import AutoConfig, AutoModelForCausalLM
 from transformers.models.llama import LlamaTokenizer
 from typing import Optional, List
 
