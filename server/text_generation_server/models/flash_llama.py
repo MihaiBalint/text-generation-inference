@@ -10,6 +10,7 @@ from transformers.models.llama import LlamaTokenizer
 from typing import Optional, List
 
 from text_generation_server.models import FlashCausalLM
+from text_generation_server.models.causal_lm import CausalLM
 from text_generation_server.models.custom_modeling.flash_llama_modeling import (
     FlashLlamaForCausalLM,
     TensorParallelEmbedding,
@@ -301,3 +302,13 @@ class FlashLlamaSharded(FlashLlama):
                         module._buffers[param_name] = tensor
         torch.cuda.empty_cache()
         model.post_load_weights()
+
+
+def SingleLlama(model_id: str, revision: Optional[str] = None, quantize=False):
+    tokenizer = LlamaTokenizer.from_pretrained(
+        model_id,
+        revision=revision,
+        padding_side="left",
+        truncation_side="left",
+    )
+    return CausalLM(model_id, revision, quantize=quantize)

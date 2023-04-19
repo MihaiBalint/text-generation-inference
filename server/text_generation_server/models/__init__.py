@@ -19,7 +19,7 @@ from text_generation_server.models.t5 import T5Sharded
 
 try:
     from text_generation_server.models.flash_neox import FlashNeoX, FlashNeoXSharded
-    from text_generation_server.models.flash_llama import FlashLlama, FlashLlamaSharded
+    from text_generation_server.models.flash_llama import FlashLlama, FlashLlamaSharded, SingleLlama
     from text_generation_server.models.flash_santacoder import (
         FlashSantacoder,
         FlashSantacoderSharded,
@@ -116,9 +116,10 @@ def get_model(
             if FLASH_ATTENTION:
                 return FlashLlamaSharded(model_id, revision, quantize=quantize)
             raise NotImplementedError(FLASH_ATT_ERROR_MESSAGE.format(f"Sharded Llama"))
+        elif FLASH_ATTENTION:
+            return FlashLlama(model_id, revision, quantize=quantize)
         else:
-            llama_cls = FlashLlama if FLASH_ATTENTION else CausalLM
-            return llama_cls(model_id, revision, quantize=quantize)
+            return SingleLlama(model_id, revision, quantize=quantize)
 
     if config.model_type == "opt":
         if sharded:
