@@ -11,6 +11,7 @@ from typing import Optional, List
 
 from text_generation_server.models import FlashCausalLM
 from text_generation_server.models.causal_lm import CausalLM
+from text_generation_server.models.flash_causal_lm import FlashCausalLMBatch
 from text_generation_server.models.custom_modeling.flash_llama_modeling import (
     FlashLlamaForCausalLM,
     TensorParallelEmbedding,
@@ -342,8 +343,11 @@ class SingleLlama(CausalLM):
             device_map="auto" if torch.cuda.is_available() else None,
             load_in_8bit=quantize,
         ).eval()
-        tokenizer.pad_token = tokenizer.eos_token
 
         super(CausalLM, self).__init__(
             tokenizer=tokenizer, device=device, decode_buffer=decode_buffer
         )
+
+    @property
+    def batch_type(self) -> Type[FlashCausalLMBatch]:
+        return FlashCausalLMBatch
