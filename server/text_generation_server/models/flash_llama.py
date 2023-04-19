@@ -311,4 +311,4 @@ def SingleLlama(model_id: str, revision: Optional[str] = None, quantize=False):
         padding_side="left",
         truncation_side="left",
     )
-    return CausalLM(model_id, revision, quantize=quantize)
+    return CausalLM(model_id, revision, tokenizer=tokenizer, quantize=quantize)
