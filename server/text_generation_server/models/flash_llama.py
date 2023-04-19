@@ -304,12 +304,50 @@ class FlashLlamaSharded(FlashLlama):
         model.post_load_weights()
 
 
-def SingleLlama(model_id: str, revision: Optional[str] = None, quantize=False):
-    llama = CausalLM(model_id, revision, quantize=quantize)
-    llama.tokenizer = LlamaTokenizer.from_pretrained(
-        model_id,
-        revision=revision,
-        padding_side="left",
-        truncation_side="left",
-    )
-    return llama
+        
+class SingleLlama(CausalLM):
+    def __init__(
+        self,
+        model_id: str,
+        revision: Optional[str] = None,
+        quantize: bool = False,
+        decode_buffer: int = 3,
+    ):
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        else:
+            if quantize:
+                raise ValueError("quantization is not available on CPU")
+
+            device = torch.device("cpu")
+            dtype = torch.float16
+
+        tokenizer = LlamaTokenizer.from_pretrained(
+            model_id,
+            revision=revision,
+            padding_side="left",
+            truncation_side="left",
+        )
+
+        config = AutoConfig.from_pretrained(
+            model_id,
+            revision=revision,
+        )
+
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            revision=revision,
+            torch_dtype=dtype,
+            device_map="auto" if torch.cuda.is_available() else None,
+            load_in_8bit=quantize,
+        ).eval()
+        tokenizer.pad_token_id = (
+            self.model.config.pad_token_id
+            if self.model.config.pad_token_id is not None
+            else self.model.config.eos_token_id
+        )
+
+        super(CausalLM, self).__init__(
+            tokenizer=tokenizer, device=device, decode_buffer=decode_buffer
+        )
