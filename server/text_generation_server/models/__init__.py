@@ -1,3 +1,4 @@
+import os
 import torch
 
 from loguru import logger
@@ -24,7 +25,7 @@ try:
         FlashSantacoderSharded,
     )
 
-    FLASH_ATTENTION = torch.cuda.is_available()
+    FLASH_ATTENTION = torch.cuda.is_available() and not os.environ.get("DISABLE_FLASH_ATTENTION")
 except ImportError:
     logger.opt(exception=True).warning("Could not import Flash Attention enabled models")
     FLASH_ATTENTION = False
