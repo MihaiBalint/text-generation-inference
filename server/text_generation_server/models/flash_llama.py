@@ -342,11 +342,6 @@ class SingleLlama(CausalLM):
             device_map="auto" if torch.cuda.is_available() else None,
             load_in_8bit=quantize,
         ).eval()
-        tokenizer.pad_token_id = (
-            self.model.config.pad_token_id
-            if self.model.config.pad_token_id is not None
-            else self.model.config.eos_token_id
-        )
 
         super(CausalLM, self).__init__(
             tokenizer=tokenizer, device=device, decode_buffer=decode_buffer
