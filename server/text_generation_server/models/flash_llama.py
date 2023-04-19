@@ -7,7 +7,7 @@ from pathlib import Path
 from safetensors import safe_open
 from transformers import AutoConfig, AutoModelForCausalLM
 from transformers.models.llama import LlamaTokenizer
-from typing import Optional, List
+from typing import Optional, List, Type
 
 from text_generation_server.models import FlashCausalLM
 from text_generation_server.models.causal_lm import CausalLM
